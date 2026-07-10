@@ -46,13 +46,13 @@ A VGG-16 (with Batch Normalization) convolutional neural network **built from sc
 ```
 03_VGG16_Robustness/
 ├── config2.py            # Central config: seeds, paths, classes, hyperparameters, 3 version definitions
-├── data_setup2.py        # Step 1 — scan folders, stratified train/val split, compute train-only norm stats
+├── data_setup2.py        # Step 1 scan folders, stratified train/val split, compute train-only norm stats
 ├── dataset2.py           # Dataset + DataLoader builders, 3 augmentation levels, custom Gaussian-noise transform
 ├── model2.py             # SamVGG16Ex2 — VGG-16-BN model definition (single-channel input)
-├── trainex2.py           # Step 2 — trains all 3 versions, evaluates, plots, picks best → report2.pth
-├── robustcheck.py        # Step 3 — robustness evaluation under 5 simulated perturbations
-├── swap_to_ver2.py       # Step 4 — override the auto-selected best model with ver2
-├── testrun2.py           # Step 5 — inference on the unlabeled test set → clsn2_ans.csv
+├── trainex2.py           # Step 2 trains all 3 versions, evaluates, plots, picks best → report2.pth
+├── robustcheck.py        # Step 3 robustness evaluation under 5 simulated perturbations
+├── swap_to_ver2.py       # Step 4 override the auto-selected best model with ver2
+├── testrun2.py           # Step 5 inference on the unlabeled test set → clsn2_ans.csv
 ├── visualize2.py         # CNN interpretability: feature maps, saliency maps, Grad-CAM
 ├── pipeline2.md          # The 5-command run order
 │
@@ -147,7 +147,7 @@ Input 1×128×128 (grayscale)
 
 **Why build from scratch instead of fine-tuning ImageNet weights?** The data is structured grayscale block patterns that differ fundamentally from natural color photos, and from-scratch training lets the first conv layer natively accept one channel without approximation.
 
-**Parameter count:** 134,284,228 total. The first FC layer alone (`Linear(25088→4096)`) accounts for **102.7M params (76.5 %)** — characteristic of VGG. Model size: **537 MB FP32 / 269 MB FP16**.
+**Parameter count:** 134,284,228 total. The first FC layer alone (`Linear(25088→4096)`) accounts for **102.7M params (76.5 %)** characteristic of VGG. Model size: **537 MB FP32 / 269 MB FP16**.
 
 ---
 
@@ -226,7 +226,7 @@ Each version tests a specific hypothesis about which augmentation/regularization
 
 MixUp linearly interpolates two images and assigns a convex combination of their labels. For natural images (ImageNet), interpolated samples lie roughly on the data manifold and regularize usefully. For **discrete high-contrast block patterns**, a linear blend of two different-class images resembles *neither* class and lies **off the data manifold**. The network gets contradictory targets and its decision boundary destabilizes — especially for class 4, which shares some block characteristics with class 2.
 
-The per-class evaluation pins the mechanism precisely: **class-4 recall collapsed to 0.583 while its precision stayed at 0.94** — i.e. the model stopped predicting class 4 for true class-4 samples (systematic mislabeling), rather than over-predicting it. This confirms a general principle: *augmentation must stay within the distribution of plausible variations; augmentations that move samples off the manifold hurt rather than help.*
+The per-class evaluation pins the mechanism precisely: **class-4 recall collapsed to 0.583 while its precision stayed at 0.94** i.e. the model stopped predicting class 4 for true class-4 samples (systematic mislabeling), rather than over-predicting it. This confirms a general principle: *augmentation must stay within the distribution of plausible variations; augmentations that move samples off the manifold hurt rather than help.*
 
 ### Learning curves
 
@@ -280,7 +280,7 @@ The core of the project. After training, each model was evaluated on the validat
 
 ## 11. How to Run
 
-Run the scripts **in order** (see `pipeline2.md`). Before running, set the paths in `config2.py` (`BASE_DIR`, `DATA_DIR`) to point at your dataset.
+Run the scripts **in order** (see `pipeline2.md`). Before running, set the paths in `config2.py` (`BASE_DIR`, `DATA_DIR`) to point at the dataset.
 
 ```bash
 # 1. Scan folders, stratified 80/20 split, compute train-only norm stats
