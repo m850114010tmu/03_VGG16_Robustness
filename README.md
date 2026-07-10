@@ -83,7 +83,7 @@ A VGG-16 (with Batch Normalization) convolutional neural network **built from sc
 └── README.md             # this file
 ```
 
-> The `outputs/` folder (figures, splits, norm stats, checkpoints) is produced automatically by the pipeline. You can commit the figures and CSVs, but the `.pth` checkpoints are large — see [§13](#13-how-to-push-this-to-github) about `.gitignore`.
+
 
 ---
 
