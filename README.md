@@ -272,9 +272,9 @@ The core of the project. After training, each model was evaluated on the validat
 
 `visualize2.py` produces three interpretability views on the deployed model (one sample per class):
 
-- **Feature maps** (`feature_maps_per_class.png`) — mean activation of the block-5 feature map. Classes 2 and 3 show broader activation zones than classes 1 and 4, correlating with their more spatially distributed block layouts.
-- **Saliency maps** (`saliency_maps.png`) — `|∂score/∂pixel|`, showing which input pixels the class score is most sensitive to. Class 3's sensitivity forms horizontal bands matching its stripe-like structure; class 4's concentrates in isolated bright blocks.
-- **Grad-CAM** (`grad_cam.png`) — gradient-weighted class activation over the last conv layer. Classes 1 and 4 show localized hot regions (corner / center), while classes 2 and 3 show broader heatmaps — suggesting 2 & 3 need global context while 1 & 4 rely on localized features.
+- **Feature maps** (`feature_maps_per_class.png`) mean activation of the block-5 feature map. Classes 2 and 3 show broader activation zones than classes 1 and 4, correlating with their more spatially distributed block layouts.
+- **Saliency maps** (`saliency_maps.png`) `|∂score/∂pixel|`, showing which input pixels the class score is most sensitive to. Class 3's sensitivity forms horizontal bands matching its stripe-like structure; class 4's concentrates in isolated bright blocks.
+- **Grad-CAM** (`grad_cam.png`) gradient-weighted class activation over the last conv layer. Classes 1 and 4 show localized hot regions (corner / center), while classes 2 and 3 show broader heatmaps — suggesting 2 & 3 need global context while 1 & 4 rely on localized features.
 
 ---
 
