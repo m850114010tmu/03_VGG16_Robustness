@@ -89,7 +89,7 @@ A VGG-16 (with Batch Normalization) convolutional neural network **built from sc
 
 ## 3. Dataset
 
-The dataset (`gen_data_exam`) consists of **structured grayscale block patterns** — discrete rectangular regions of varying intensity, not photographic scenes. Every image is stored as grayscale, native resolution **240 × 320**, `uint8`, pixel values in `[0, 255]`.
+The dataset (`gen_data_exam`) consists of **structured grayscale block patterns** discrete rectangular regions of varying intensity, not photographic scenes. Every image is stored as grayscale, native resolution **240 × 320**, `uint8`, pixel values in `[0, 255]`.
 
 **Training set: 5,800 images across 4 classes**
 
@@ -103,7 +103,7 @@ The dataset (`gen_data_exam`) consists of **structured grayscale block patterns*
 
 Class 2 is ~13 % smaller than the others. This mild imbalance drove two design choices: **inverse-frequency class weights** in the loss, and a **stratified split** so class 2's proportion is preserved in both partitions.
 
-**Test set:** 400 unlabeled images in `test2/`, same dimensions and color space. Crucially, the test images **intentionally include brightness perturbations and Gaussian noise** while the training images are clean — so **test-time robustness is treated as a primary objective, not an afterthought**.
+**Test set:** 400 unlabeled images in `test2/`, same dimensions and color space. Crucially, the test images **intentionally include brightness perturbations and Gaussian noise** while the training images are clean, so **test-time robustness is treated as a primary objective, not an afterthought**.
 
 ---
 
@@ -115,7 +115,7 @@ A five-step pipeline that **cleanly separates training-time augmentation from th
 |---|---|---|
 | 1 | **Channel standardization** | `PIL.convert('L')` forces one grayscale channel |
 | 2 | **Spatial resize** | 128 × 128 (divisible by 32 = VGG's cumulative stride 2⁵); cuts memory ~84 % vs native, no accuracy loss |
-| 3 | **Normalization** | `mean = 0.0992`, `std = 0.2109` — computed on the **train split only** to avoid data leakage |
+| 3 | **Normalization** | `mean = 0.0992`, `std = 0.2109` computed on the **train split only** to avoid data leakage |
 | 4 | **Augmentation** | **Training only.** Val/test use steps 1–3 only (clean). Three augmentation levels defined. |
 | 5 | **Deterministic shuffle** | Generator seed = 42, `worker_init_fn` seeded → fully reproducible batch order |
 
@@ -125,7 +125,7 @@ The train-only normalization statistics are saved to `outputs/norm_stats.json` a
 
 ## 5. Network Architecture
 
-**VGG-16-BN** — the standard 16-layer config (13 conv + 3 FC), with **Batch Normalization after every convolution**.
+**VGG-16-BN** the standard 16-layer config (13 conv + 3 FC), with **Batch Normalization after every convolution**.
 
 ```
 Input 1×128×128 (grayscale)
@@ -142,8 +142,8 @@ Input 1×128×128 (grayscale)
 
 **Two deliberate adaptations to the standard VGG-16:**
 
-1. **Single input channel** — the first conv accepts 1 channel (grayscale) instead of 3. Copying grayscale into three channels would triple the first layer's bandwidth without adding information.
-2. **Batch Normalization everywhere** — training a 134M-parameter network from *random init* on only 4,640 images causes severe internal covariate shift. BN stabilizes gradient scale and allows a much higher learning rate (`1e-3` instead of `1e-4`).
+1. **Single input channel** the first conv accepts 1 channel (grayscale) instead of 3. Copying grayscale into three channels would triple the first layer's bandwidth without adding information.
+2. **Batch Normalization everywhere** training a 134M-parameter network from *random init* on only 4,640 images causes severe internal covariate shift. BN stabilizes gradient scale and allows a much higher learning rate (`1e-3` instead of `1e-4`).
 
 **Why build from scratch instead of fine-tuning ImageNet weights?** The data is structured grayscale block patterns that differ fundamentally from natural color photos, and from-scratch training lets the first conv layer natively accept one channel without approximation.
 
@@ -153,7 +153,7 @@ Input 1×128×128 (grayscale)
 
 ## 6. Training Setup
 
-All three versions share the same optimizer, scheduler, and training loop — only the augmentation level, LR, weight decay, and optional MixUp differ.
+All three versions share the same optimizer, scheduler, and training loop only the augmentation level, LR, weight decay, and optional MixUp differ.
 
 | Hyperparameter | Value |
 |---|---|
@@ -198,7 +198,7 @@ Each version tests a specific hypothesis about which augmentation/regularization
 
 - **ver1 (baseline):** only geometric augmentation (affine + flip). Confirms VGG-16 can learn the block patterns reliably without photometric augmentation.
 - **ver2 (robust):** adds RandomResizedCrop, ColorJitter, custom Gaussian noise, and light label smoothing — directly simulating the brightness/contrast/noise shifts expected in the test set.
-- **ver3 (robust+):** pushes all augmentation harder and adds MixUp — an intentional stress test of "more regularization = better generalization?"
+- **ver3 (robust+):** pushes all augmentation harder and adds MixUp an intentional stress test of "more regularization = better generalization?"
 
 ---
 
@@ -220,9 +220,9 @@ Each version tests a specific hypothesis about which augmentation/regularization
 **Commentary:**
 - **ver1** reaches the highest clean macro-F1 (0.9975) but takes the longest to converge (37 epochs).
 - **ver2** converges nearly twice as fast (epoch 20) and stays essentially tied on clean accuracy (0.9958). The tiny train–val gap (0.11 pp) shows **no overfitting**.
-- **ver3 failed** — it early-stopped at epoch 11 with only 0.8728 macro-F1 and a **catastrophic class-4 recall of 0.583**.
+- **ver3 failed** it early-stopped at epoch 11 with only 0.8728 macro-F1 and a **catastrophic class-4 recall of 0.583**.
 
-### Why ver3 failed — the MixUp / block-pattern incompatibility
+### Why ver3 failed as the MixUp / block-pattern incompatibility
 
 MixUp linearly interpolates two images and assigns a convex combination of their labels. For natural images (ImageNet), interpolated samples lie roughly on the data manifold and regularize usefully. For **discrete high-contrast block patterns**, a linear blend of two different-class images resembles *neither* class and lies **off the data manifold**. The network gets contradictory targets and its decision boundary destabilizes — especially for class 4, which shares some block characteristics with class 2.
 
@@ -260,9 +260,9 @@ The core of the project. After training, each model was evaluated on the validat
 | **Worst drop from clean** | 73.80 pp | 73.71 pp | 63.71 pp |
 
 **Commentary:**
-- **ver2 clearly beats ver1** where it matters: darker images (90.95 % vs 83.79 %) and Gaussian noise (99.31 % vs 92.16 %) — exactly the perturbation types the test set contains.
+- **ver2 clearly beats ver1** where it matters: darker images (90.95 % vs 83.79 %) and Gaussian noise (99.31 % vs 92.16 %) exactly the perturbation types the test set contains.
 - Both ver1 and ver2 collapse under large **positive** brightness shifts (+0.20 and the combined case). This is the one weakness that photometric augmentation alone didn't fully solve.
-- **ver3**, despite being the most regularized, is worst under brightness changes — MixUp prevented it from learning a sharp enough decision boundary.
+- **ver3**, despite being the most regularized, is worst under brightness changes and MixUp prevented it from learning a sharp enough decision boundary.
 
 **Decision:** the automatic selection (`trainex2.py`) picked **ver1** based on clean F1 alone. Based on the robustness table, this was **manually overridden to ver2** via `swap_to_ver2.py`, since ver2 generalizes better to the perturbations the test set actually carries.
 
